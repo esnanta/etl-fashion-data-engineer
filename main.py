@@ -50,7 +50,7 @@ def scrape_data(url):
 
 
 def main():
-    url = 'https://halaman-profil-bandung-grid.netlify.app/'
+    url = 'https://fashion-studio.dicoding.dev/'
     tourism_data = scrape_data(url)
 
     if tourism_data:
