@@ -10,8 +10,7 @@ HEADERS = {
 }
 
 
-def extract_tourism_data(section):
-    """Mengekstrak data tempat wisata dari satu elemen <section>."""
+def extract_data(section):
     tempat_wisata = section.find('h3').text
     deskripsi = section.find('p').text.replace('\n', '').strip()
     url_gambar = section.find('img')["src"]
@@ -23,40 +22,36 @@ def extract_tourism_data(section):
     }
 
 
-def fetch_page_content(url):
-    """Mengambil konten HTML dari URL dengan user-agent yang ditentukan."""
+def fetch_page(url):
     try:
         response = requests.get(url, headers=HEADERS)
-        response.raise_for_status()  # Memunculkan HTTPError untuk status yang buruk
+        response.raise_for_status()
         return response.content
     except requests.exceptions.RequestException as e:
         print(f"Error saat mengambil {url}: {e}")
         return None
 
 
-def scrape_tourism_data(url):
-    """Melakukan scraping untuk semua data tempat wisata."""
-    content = fetch_page_content(url)
+def scrape_data(url):
+    content = fetch_page(url)
     if not content:
-        return []  # Kembalikan list kosong jika gagal mengambil konten
+        return []
 
     soup = BeautifulSoup(content, 'html.parser')
     data = []
     articles = soup.find('article', id='wisata', class_='card')
 
     if articles:
-        # Navigasi menggunakan .descendants untuk menemukan <section>
         sections = [desc for desc in articles.descendants if desc.name == 'section']
         for section in sections:
-            tourism_data = extract_tourism_data(section)
+            tourism_data = extract_data(section)
             data.append(tourism_data)
     return data
 
 
 def main():
-    """Fungsi utama untuk menjalankan proses scraping dan menyimpan data."""
     url = 'https://halaman-profil-bandung-grid.netlify.app/'
-    tourism_data = scrape_tourism_data(url)
+    tourism_data = scrape_data(url)
 
     if tourism_data:
         df = pd.DataFrame(tourism_data)
