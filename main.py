@@ -1,6 +1,7 @@
 import requests
 import pandas as pd
 from bs4 import BeautifulSoup
+from datetime import datetime, timezone
 
 HEADERS = {
     "User-Agent": (
@@ -10,43 +11,93 @@ HEADERS = {
 }
 
 
-def extract_data(section):
-    tempat_wisata = section.find('h3').text
-    deskripsi = section.find('p').text.replace('\n', '').strip()
-    url_gambar = section.find('img')["src"]
-
-    return {
-        "tempat_wisata": tempat_wisata,
-        "deskripsi": deskripsi,
-        "url_gambar": url_gambar
-    }
-
-
-def fetch_page(url):
+def extract_data(card, extracted_at=None):
+    """
+    Extract raw data from one product card.
+    Fields are shaped for the transform stage:
+    Title, Price, Rating, Colors, Size, Gender + timestamp.
+    """
     try:
-        response = requests.get(url, headers=HEADERS)
-        response.raise_for_status()
-        return response.content
-    except requests.exceptions.RequestException as e:
-        print(f"Error saat mengambil {url}: {e}")
+        title_el = card.select_one("h3.product-title")
+        price_el = card.select_one(".price-container .price, p.price")
+        details = card.select("p")
+
+        title = title_el.get_text(strip=True) if title_el else None
+        price = price_el.get_text(strip=True) if price_el else None
+
+        rating = details[0].get_text(strip=True) if len(details) > 0 else None
+        colors = details[1].get_text(strip=True) if len(details) > 1 else None
+        size = details[2].get_text(strip=True) if len(details) > 2 else None
+        gender = details[3].get_text(strip=True) if len(details) > 3 else None
+
+        return {
+            "Title": title,
+            "Price": price,
+            "Rating": rating,
+            "Colors": colors,
+            "Size": size,
+            "Gender": gender,
+            "timestamp": extracted_at or datetime.now(timezone.utc).isoformat(),
+        }
+    except Exception as e:
+        # Error handling at extract-function level (advanced criteria)
+        print(f"Failed to extract a single card: {e}")
         return None
 
 
-def scrape_data(url):
-    content = fetch_page(url)
-    if not content:
-        return []
+def fetch_page(url, timeout=15):
+    """
+    Fetch page content with error handling.
+    Returns page bytes on success, None on failure.
+    """
+    try:
+        response = requests.get(url, headers=HEADERS, timeout=timeout)
+        response.raise_for_status()
+        return response.content
+    except requests.exceptions.Timeout:
+        print(f"Timeout while fetching URL: {url}")
+    except requests.exceptions.HTTPError as e:
+        print(f"HTTP error while fetching {url}: {e}")
+    except requests.exceptions.RequestException as e:
+        print(f"Request error while fetching {url}: {e}")
+    return None
 
-    soup = BeautifulSoup(content, 'html.parser')
-    data = []
-    articles = soup.find('article', id='wisata', class_='card')
 
-    if articles:
-        sections = [desc for desc in articles.descendants if desc.name == 'section']
-        for section in sections:
-            tourism_data = extract_data(section)
-            data.append(tourism_data)
-    return data
+def scrape_data(base_url="https://fashion-studio.dicoding.dev/", start_page=1, end_page=50):
+    """
+    Scrape all product pages.
+    Page 1: /
+    Next pages: /page2 ... /page50
+    """
+    all_data = []
+
+    # Keep one extraction timestamp for the same batch run
+    extracted_at = datetime.now(timezone.utc).isoformat()
+
+    for page in range(start_page, end_page + 1):
+        if page == 1:
+            url = base_url
+        else:
+            url = f"{base_url.rstrip('/')}/page{page}"
+
+        content = fetch_page(url)
+        if not content:
+            print(f"Skipping page {page} because fetch failed.")
+            continue
+
+        soup = BeautifulSoup(content, "html.parser")
+        cards = soup.select("div.collection-card")
+
+        if not cards:
+            print(f"No product cards found on page {page}: {url}")
+            continue
+
+        for card in cards:
+            row = extract_data(card, extracted_at=extracted_at)
+            if row is not None:
+                all_data.append(row)
+
+    return all_data
 
 
 def main():
@@ -57,7 +108,7 @@ def main():
         df = pd.DataFrame(tourism_data)
         print(df)
     else:
-        print("Tidak ada data yang ditemukan.")
+        print("No data found.")
 
 
 if __name__ == "__main__":
