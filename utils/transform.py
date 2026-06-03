@@ -1,7 +1,9 @@
 import re
+import logging
 import pandas as pd
 
 EXCHANGE_RATE_IDR = 16000
+logger = logging.getLogger(__name__)
 
 def parse_price_from_usd_to_idr(value):
 	"""
@@ -17,7 +19,7 @@ def parse_price_from_usd_to_idr(value):
 		usd_price = float(match.group(1))
 		return int(round(usd_price * EXCHANGE_RATE_IDR))
 	except Exception as e:
-		print(f"Failed to parse price '{value}': {e}")
+		logger.debug("Failed to parse price '%s': %s", value, e, exc_info=True)
 		return None
 
 
@@ -31,7 +33,7 @@ def parse_rating(value):
 			return None
 		return float(match.group(1))
 	except Exception as e:
-		print(f"Failed to parse rating '{value}': {e}")
+		logger.debug("Failed to parse rating '%s': %s", value, e, exc_info=True)
 		return None
 
 
@@ -45,7 +47,7 @@ def parse_colors(value):
 			return None
 		return int(match.group(1))
 	except Exception as e:
-		print(f"Failed to parse colors '{value}': {e}")
+		logger.debug("Failed to parse colors '%s': %s", value, e, exc_info=True)
 		return None
 
 
@@ -57,7 +59,7 @@ def parse_size(value):
 		parsed = value.replace("Size:", "").strip()
 		return parsed or None
 	except Exception as e:
-		print(f"Failed to parse size '{value}': {e}")
+		logger.debug("Failed to parse size '%s': %s", value, e, exc_info=True)
 		return None
 
 
@@ -69,7 +71,7 @@ def parse_gender(value):
 		parsed = value.replace("Gender:", "").strip()
 		return parsed or None
 	except Exception as e:
-		print(f"Failed to parse gender '{value}': {e}")
+		logger.debug("Failed to parse gender '%s': %s", value, e, exc_info=True)
 		return None
 
 
@@ -126,6 +128,6 @@ def transform_data(raw_data):
 
 		return df.reset_index(drop=True)
 	except Exception as e:
-		print(f"Failed to transform data: {e}")
+		logger.debug("Failed to transform data: %s", e, exc_info=True)
 		return pd.DataFrame()
 
