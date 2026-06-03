@@ -1,14 +1,14 @@
-import pandas as pd
 from utils.extract import scrape_data
+from utils.transform import transform_data
 
 
 def main():
     url = 'https://fashion-studio.dicoding.dev/'
-    product_data = scrape_data(url)
+    raw_product_data = scrape_data(url)
+    product_data = transform_data(raw_product_data)
 
-    if product_data:
-        df = pd.DataFrame(product_data)
-        print(df)
+    if not product_data.empty:
+        print(product_data)
     else:
         print("No data found.")
 
