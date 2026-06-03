@@ -84,6 +84,8 @@ etl-fashion-data-engineer/
     - `test_load.py`
   - Ensures modular components can be verified independently.
 
+![Sample test coverage](https://github.com/esnanta/etl-fashion-data-engineer/blob/main/images/test_coverage.png)
+
 ## ETL Flow
 
 1. **Extract**
