@@ -74,8 +74,9 @@ class TestFetchPage(unittest.TestCase):
         self.assertEqual(content, b"<html>ok</html>")
         mock_get.assert_called_once()
 
+    @patch("builtins.print")
     @patch("utils.extract.requests.get")
-    def test_fetch_page_timeout(self, mock_get):
+    def test_fetch_page_timeout(self, mock_get, mock_print):
         import requests
 
         mock_get.side_effect = requests.exceptions.Timeout()
@@ -83,6 +84,7 @@ class TestFetchPage(unittest.TestCase):
         content = fetch_page("https://example.com")
 
         self.assertIsNone(content)
+        mock_print.assert_called_once_with("Timeout while fetching URL: https://example.com")
 
 
 class TestScrapeData(unittest.TestCase):
@@ -130,13 +132,14 @@ class TestScrapeData(unittest.TestCase):
         timestamps = {row["timestamp"] for row in rows}
         self.assertEqual(len(timestamps), 1)
 
+    @patch("builtins.print")
     @patch("utils.extract.fetch_page", return_value=None)
-    def test_scrape_data_skips_failed_page(self, mock_fetch_page):
+    def test_scrape_data_skips_failed_page(self, mock_fetch_page, mock_print):
         rows = scrape_data(start_page=1, end_page=1)
 
         self.assertEqual(rows, [])
         mock_fetch_page.assert_called_once()
-
+        mock_print.assert_called_once_with("Skipping page 1 because fetch failed.")
 
 if __name__ == "__main__":
     unittest.main()
