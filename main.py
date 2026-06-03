@@ -102,10 +102,10 @@ def scrape_data(base_url="https://fashion-studio.dicoding.dev/", start_page=1, e
 
 def main():
     url = 'https://fashion-studio.dicoding.dev/'
-    tourism_data = scrape_data(url)
+    product_data = scrape_data(url)
 
-    if tourism_data:
-        df = pd.DataFrame(tourism_data)
+    if product_data:
+        df = pd.DataFrame(product_data)
         print(df)
     else:
         print("No data found.")
