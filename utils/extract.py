@@ -9,6 +9,7 @@ HEADERS = {
 	)
 }
 
+DEFAULT_BASE_URL = "https://fashion-studio.dicoding.dev/"
 
 def extract_data(card, extracted_at=None):
 	"""
@@ -62,7 +63,7 @@ def fetch_page(url, timeout=15):
 	return None
 
 
-def scrape_data(base_url="https://fashion-studio.dicoding.dev/", start_page=1, end_page=50):
+def scrape_data(base_url=DEFAULT_BASE_URL, start_page=1, end_page=50):
 	"""
 	Scrape all product pages.
 	Page 1: /
@@ -97,4 +98,3 @@ def scrape_data(base_url="https://fashion-studio.dicoding.dev/", start_page=1, e
 				all_data.append(row)
 
 	return all_data
-

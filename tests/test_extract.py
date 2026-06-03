@@ -3,7 +3,7 @@ from unittest.mock import Mock, patch
 
 from bs4 import BeautifulSoup
 
-from utils.extract import extract_data, fetch_page, scrape_data
+from utils.extract import DEFAULT_BASE_URL, extract_data, fetch_page, scrape_data
 
 
 class TestExtractData(unittest.TestCase):
@@ -113,9 +113,9 @@ class TestScrapeData(unittest.TestCase):
         """
 
         def fake_fetch(url):
-            if url == "https://fashion-studio.dicoding.dev/":
+            if url == DEFAULT_BASE_URL:
                 return page_1
-            if url == "https://fashion-studio.dicoding.dev/page2":
+            if url == f"{DEFAULT_BASE_URL.rstrip('/')}/page2":
                 return page_2
             return None
 
