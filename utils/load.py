@@ -2,7 +2,7 @@ import pandas as pd
 
 
 def save_to_csv(product_data, output_path="products.csv"):
-	"""Save transformed product data to CSV file."""
+	"""Save transformed product data to a CSV file."""
 	try:
 		if product_data is None:
 			print("No data provided to save.")
