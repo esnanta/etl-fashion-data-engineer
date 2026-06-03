@@ -24,6 +24,10 @@ class TestParseHelpers(unittest.TestCase):
         self.assertIsNone(parse_price_from_usd_to_idr("Invalid Price"))
         self.assertIsNone(parse_price_from_usd_to_idr(None))
 
+    def test_parse_price_from_usd_to_idr_with_currency_spacing(self):
+        value = parse_price_from_usd_to_idr("$ 10.50")
+        self.assertEqual(value, int(round(10.5 * EXCHANGE_RATE_IDR)))
+
     def test_parse_rating_valid_and_invalid(self):
         self.assertEqual(parse_rating("Rating: 4.8 / 5"), 4.8)
         self.assertIsNone(parse_rating("Rating: Invalid"))
@@ -135,6 +139,71 @@ class TestTransformData(unittest.TestCase):
 
         self.assertEqual(len(result), 1)
         self.assertEqual(result.iloc[0]["Title"], "Hoodie")
+
+    def test_transform_data_filters_unknown_product_case_insensitive(self):
+        raw_data = [
+            {
+                "Title": "  UNKNOWN PRODUCT  ",
+                "Price": "$10.00",
+                "Rating": "Rating: 4.5 / 5",
+                "Colors": "2 Colors",
+                "Size": "Size: M",
+                "Gender": "Gender: Men",
+                "timestamp": "2026-06-03T00:00:00+00:00",
+            }
+        ]
+
+        result = transform_data(raw_data)
+
+        self.assertTrue(result.empty)
+
+    def test_transform_data_drops_rows_with_invalid_parsed_values(self):
+        raw_data = [
+            {
+                "Title": "Valid Product",
+                "Price": "$11.00",
+                "Rating": "Rating: 4.1 / 5",
+                "Colors": "3 Colors",
+                "Size": "Size: M",
+                "Gender": "Gender: Men",
+                "timestamp": "2026-06-03T00:00:00+00:00",
+            },
+            {
+                "Title": "Invalid Price Product",
+                "Price": "Not A Price",
+                "Rating": "Rating: 4.2 / 5",
+                "Colors": "2 Colors",
+                "Size": "Size: L",
+                "Gender": "Gender: Women",
+                "timestamp": "2026-06-03T00:00:00+00:00",
+            },
+        ]
+
+        result = transform_data(raw_data)
+
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result.iloc[0]["Title"], "Valid Product")
+
+    def test_transform_data_accepts_shuffled_columns_and_preserves_timestamp(self):
+        df = pd.DataFrame(
+            [
+                {
+                    "timestamp": "2026-06-03T12:34:56+00:00",
+                    "Gender": "Gender: Women",
+                    "Size": "Size: S",
+                    "Colors": "1 Color",
+                    "Rating": "Rating: 5.0 / 5",
+                    "Price": "$7.00",
+                    "Title": "Tank Top",
+                }
+            ]
+        )
+
+        result = transform_data(df)
+
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result.iloc[0]["timestamp"], "2026-06-03T12:34:56+00:00")
+        self.assertEqual(result.iloc[0]["Title"], "Tank Top")
 
 
 if __name__ == "__main__":
