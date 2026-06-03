@@ -11,22 +11,21 @@ from utils.load import save_to_csv
 class TestSaveToCsv(unittest.TestCase):
     """Test saving transformed data into CSV output."""
 
-    @patch("builtins.print")
-    def test_save_to_csv_returns_false_for_none_input(self, mock_print):
-        result = save_to_csv(None)
+    def test_save_to_csv_returns_false_for_none_input(self):
+        with self.assertLogs("utils.load", level="WARNING") as logs:
+            result = save_to_csv(None)
 
         self.assertFalse(result)
-        mock_print.assert_called_once_with("No data provided to save.")
+        self.assertIn("No data provided to save.", logs.output[0])
 
-    @patch("builtins.print")
-    def test_save_to_csv_returns_false_for_empty_rows(self, mock_print):
-        result = save_to_csv([])
+    def test_save_to_csv_returns_false_for_empty_rows(self):
+        with self.assertLogs("utils.load", level="WARNING") as logs:
+            result = save_to_csv([])
 
         self.assertFalse(result)
-        mock_print.assert_called_once_with("No rows to save.")
+        self.assertIn("No rows to save.", logs.output[0])
 
-    @patch("builtins.print")
-    def test_save_to_csv_writes_file_for_list_input(self, mock_print):
+    def test_save_to_csv_writes_file_for_list_input(self):
         rows = [
             {
                 "Title": "Classic Shirt",
@@ -42,7 +41,8 @@ class TestSaveToCsv(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_dir:
             output_path = os.path.join(tmp_dir, "out.csv")
 
-            result = save_to_csv(rows, output_path=output_path)
+            with self.assertLogs("utils.load", level="INFO") as logs:
+                result = save_to_csv(rows, output_path=output_path)
 
             self.assertTrue(result)
             self.assertTrue(os.path.exists(output_path))
@@ -50,10 +50,9 @@ class TestSaveToCsv(unittest.TestCase):
             saved = pd.read_csv(output_path)
             self.assertEqual(len(saved), 1)
             self.assertEqual(saved.iloc[0]["Title"], "Classic Shirt")
-            mock_print.assert_called_once_with(f"Data saved to {output_path}")
+            self.assertIn(f"Data saved to {output_path}", logs.output[0])
 
-    @patch("builtins.print")
-    def test_save_to_csv_accepts_dataframe_input(self, mock_print):
+    def test_save_to_csv_accepts_dataframe_input(self):
         df = pd.DataFrame(
             [
                 {
@@ -71,21 +70,22 @@ class TestSaveToCsv(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_dir:
             output_path = os.path.join(tmp_dir, "df_out.csv")
 
-            result = save_to_csv(df, output_path=output_path)
+            with self.assertLogs("utils.load", level="INFO") as logs:
+                result = save_to_csv(df, output_path=output_path)
 
             self.assertTrue(result)
             self.assertTrue(os.path.exists(output_path))
-            mock_print.assert_called_once_with(f"Data saved to {output_path}")
+            self.assertIn(f"Data saved to {output_path}", logs.output[0])
 
-    @patch("builtins.print")
-    def test_save_to_csv_returns_false_when_write_fails(self, mock_print):
+    def test_save_to_csv_returns_false_when_write_fails(self):
         df = pd.DataFrame([{"Title": "Any"}])
 
         with patch.object(pd.DataFrame, "to_csv", side_effect=Exception("Disk full")):
-            result = save_to_csv(df, output_path="/tmp/will-not-write.csv")
+            with self.assertLogs("utils.load", level="ERROR") as logs:
+                result = save_to_csv(df, output_path="/tmp/will-not-write.csv")
 
         self.assertFalse(result)
-        mock_print.assert_called_once_with("Failed to save data to CSV: Disk full")
+        self.assertIn("Failed to save data to CSV: Disk full", logs.output[0])
 
 
 if __name__ == "__main__":
