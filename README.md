@@ -4,7 +4,7 @@ This repository is a **case-study project** from a Dicoding learning path, focus
 
 The scenario simulates a fashion retail company that needs competitor product data from **Fashion Studio** (`https://fashion-studio.dicoding.dev/`) to support analytics and downstream data science work.
 
-![Sample products.csv output](https://raw.githubusercontent.com/esnanta/etl-fashion-data-engineer/main/images/output_data_scraping.png)
+![Fashion studio website](https://github.com/esnanta/etl-fashion-data-engineer/blob/main/images/fashion_studio.png)
 
 ## Learning Context (Dicoding Case Study)
 
@@ -25,6 +25,8 @@ This project is intentionally designed as a learning-focused ETL pipeline that d
 - Remove invalid, null, and duplicate records.
 - Save production-ready output to CSV.
 - Validate behavior with unit tests.
+
+![Sample products.csv output](https://raw.githubusercontent.com/esnanta/etl-fashion-data-engineer/main/images/output_data_scraping.png)
 
 ## Modular Architecture
 
