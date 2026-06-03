@@ -63,18 +63,26 @@ def fetch_page(url, timeout=15):
 	return None
 
 
-def scrape_data(base_url=DEFAULT_BASE_URL, start_page=1, end_page=50):
+def scrape_data(
+	base_url=DEFAULT_BASE_URL,
+	start_page=1,
+	end_page=50,
+	progress_callback=None,
+):
 	"""
 	Scrape all product pages.
 	Page 1: /
 	Next pages: /page2 ... /page50
+	Optional progress_callback will be called after each processed page.
 	"""
 	all_data = []
+	total_pages = max(0, end_page - start_page + 1)
 
 	# Keep one extraction timestamp for the same batch run
 	extracted_at = datetime.now(timezone.utc).isoformat()
 
 	for page in range(start_page, end_page + 1):
+		current_page_idx = page - start_page + 1
 		if page == 1:
 			url = base_url
 		else:
@@ -83,6 +91,8 @@ def scrape_data(base_url=DEFAULT_BASE_URL, start_page=1, end_page=50):
 		content = fetch_page(url)
 		if not content:
 			print(f"Skipping page {page} because fetch failed.")
+			if progress_callback:
+				progress_callback(current_page_idx, total_pages, len(all_data), page, False)
 			continue
 
 		soup = BeautifulSoup(content, "html.parser")
@@ -90,11 +100,16 @@ def scrape_data(base_url=DEFAULT_BASE_URL, start_page=1, end_page=50):
 
 		if not cards:
 			print(f"No product cards found on page {page}: {url}")
+			if progress_callback:
+				progress_callback(current_page_idx, total_pages, len(all_data), page, False)
 			continue
 
 		for card in cards:
 			row = extract_data(card, extracted_at=extracted_at)
 			if row is not None:
 				all_data.append(row)
+
+		if progress_callback:
+			progress_callback(current_page_idx, total_pages, len(all_data), page, True)
 
 	return all_data

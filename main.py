@@ -3,12 +3,34 @@ from utils.transform import transform_data
 from utils.load import save_to_csv
 
 
+def _print_scrape_progress(current, total, collected_rows, page, is_success):
+    percent = (current / total * 100) if total else 100
+    status = "OK" if is_success else "SKIP"
+    print(
+        f"[Extract] Page {page} ({current}/{total}, {percent:.1f}%) "
+        f"- {status}, total rows: {collected_rows}"
+    )
+
+
 def main():
-    raw_product_data = scrape_data(DEFAULT_BASE_URL)
+    print("[1/3] Scraping product pages...")
+    raw_product_data = scrape_data(
+        DEFAULT_BASE_URL,
+        progress_callback=_print_scrape_progress,
+    )
+    print(f"[1/3] Done. Collected {len(raw_product_data)} raw rows.")
+
+    print("[2/3] Transforming data...")
     product_data = transform_data(raw_product_data)
+    print(f"[2/3] Done. {len(product_data)} clean rows ready.")
 
     if not product_data.empty:
-        save_to_csv(product_data, "products.csv")
+        print("[3/3] Saving CSV...")
+        is_saved = save_to_csv(product_data, "products.csv")
+        if is_saved:
+            print("[3/3] Done. Data saved to products.csv")
+        else:
+            print("[3/3] Failed to save products.csv")
         print(product_data)
     else:
         print("No data found.")
