@@ -137,8 +137,8 @@ def transform_data(raw_data):
 		df["Price"] = df["Price"].apply(parse_price_from_usd_to_idr)
 		df["Rating"] = df["Rating"].apply(parse_rating)
 		df["Colors"] = df["Colors"].apply(parse_colors)
-		df["Size"] = df["Size"].apply(parse_size)
-		df["Gender"] = df["Gender"].apply(parse_gender)
+		df["Size"] = df["Size"].apply(parse_size) # type: ignore
+		df["Gender"] = df["Gender"].apply(parse_gender) # type: ignore
 
 		df = df.dropna(subset=required_columns)
 		df = df.drop_duplicates()
