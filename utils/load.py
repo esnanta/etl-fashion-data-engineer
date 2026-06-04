@@ -15,7 +15,10 @@ except ModuleNotFoundError:
 logger = logging.getLogger(__name__)
 
 def _prepare_dataframe(product_data):
-	"""Convert product data into a non-empty DataFrame or return None."""
+	"""
+	Convert product data into a non-empty DataFrame
+	or return None.
+	"""
 	if product_data is None:
 		logger.warning("No data provided to save.")
 		return None
@@ -54,7 +57,10 @@ def save_to_google_sheets(
 	worksheet_name="Sheet1",
 	credential_path="google-sheets-api.json",
 ):
-	"""Save transformed product data to a Google Sheets worksheet."""
+	"""
+	Save transformed product data
+	to a Google Sheets worksheet.
+	"""
 	try:
 		df = _prepare_dataframe(product_data)
 		if df is None:
@@ -89,8 +95,8 @@ def save_to_google_sheets(
 		except WorksheetNotFound:
 			worksheet = spreadsheet.add_worksheet(
 				title=worksheet_name,
-				rows=str(max(len(df) + 1, 1000)),
-				cols=str(max(len(df.columns), 10)),
+				rows=max(len(df) + 1, 1000),
+				cols=max(len(df.columns), 10),
 			)
 
 		values = [df.columns.tolist()] + (
