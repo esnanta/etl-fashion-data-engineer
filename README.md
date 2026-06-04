@@ -1,20 +1,20 @@
 # ETL Fashion Data Engineer
 
-This repository is a **case-study project** from a Dicoding learning path, focused on practicing the end-to-end workflow of a data engineer: extracting, transforming, and loading data in a clean and testable way.
+This repository is a **case-study project** from a data engineer learning path, focused on practicing the end-to-end workflow: extracting, transforming, and loading data in a clean and testable way.
 
 The scenario simulates a fashion retail company that needs competitor product data from **Fashion Studio** (`https://fashion-studio.dicoding.dev/`) to support analytics and downstream data science work.
 
 ![Fashion studio website](https://github.com/esnanta/etl-fashion-data-engineer/blob/main/images/fashion_studio.png)
 
-## Learning Context (Dicoding Case Study)
+## Case Study
 
-In this project, the role is a data engineer in a fashion retail business. The business wants structured competitor data (title, price, rating, color variants, size, and gender) to monitor market trends.
+In this project, you take the role of a data engineer in a fashion retail business. The company wants structured competitor data (title, price, rating, color variants, size, and gender) to monitor market trends.
 
 This project is intentionally designed as a learning-focused ETL pipeline that demonstrates:
 
-- modular code organization,
-- data cleaning and type normalization,
-- basic data quality handling,
+- modular code organization.
+- data cleaning and type normalization.
+- basic data quality handling.
 - automated tests for each ETL stage.
 
 ## Project Goals
@@ -68,8 +68,8 @@ etl-fashion-data-engineer/
 - `utils/transform.py`
   - Data cleaning and normalization logic.
   - Parses fields (`Price`, `Rating`, `Colors`, `Size`, `Gender`).
-  - Converts USD prices to IDR.
-  - Removes invalid rows (for example, `Unknown Product`), null values, and duplicates.
+  - Converts `Price` from USD to IDR.
+  - Removes invalid rows (e.g., `Unknown Product`), null values, and duplicates.
   - Enforces expected output data types.
 
 - `utils/load.py`
@@ -101,7 +101,7 @@ etl-fashion-data-engineer/
 
 3. **Load**
    - Write clean records to `products.csv`.
-   - Upload clean records to Google Sheets (by `GOOGLE_SHEET_ID` or fallback `GOOGLE_SHEET_NAME`).
+   - Upload clean records to Google Sheets using `GOOGLE_SHEET_ID` or `GOOGLE_SHEET_NAME`.
 
 ## Requirements
 
@@ -118,7 +118,7 @@ pip install -r requirements.txt
 
 ## Run the Pipeline
 
-Set Google Sheets environment variables in `.env` (the app loads it automatically):
+Set Google Sheets environment variables in `.env` (the app loads them automatically):
 
 ```dotenv
 GOOGLE_SHEET_ID=
@@ -127,9 +127,9 @@ GOOGLE_WORKSHEET_NAME=Sheet1
 GOOGLE_SHEETS_CREDENTIAL_PATH=google-sheets-api.json
 ```
 
-Notes:
+Configuration Notes:
 
-- Fill at least one target: `GOOGLE_SHEET_ID` or `GOOGLE_SHEET_NAME`.
+- Provide at least one of: `GOOGLE_SHEET_ID` or `GOOGLE_SHEET_NAME`.
 - Share your spreadsheet with service account email from `google-sheets-api.json` as **Editor**.
 
 ```bash
@@ -170,4 +170,4 @@ After transformation, the output is expected to satisfy:
 ## Notes
 
 - This is a learning project from Dicoding and is intended to demonstrate practical ETL fundamentals in Python.
-- The case-study website and data are simulated for educational/submission purposes.
+- The case-study website and data are simulated for educational purposes.
