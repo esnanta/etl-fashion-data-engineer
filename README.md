@@ -74,7 +74,7 @@ etl-fashion-data-engineer/
 
 - `utils/load.py`
   - Data loading/output logic.
-  - Saves transformed data into `products.csv`.
+  - Saves transformed data into `products.csv` and Google Sheets.
   - Includes basic save-time error handling.
 
 - `tests/`
@@ -101,6 +101,7 @@ etl-fashion-data-engineer/
 
 3. **Load**
    - Write clean records to `products.csv`.
+   - Upload clean records to Google Sheets (by `GOOGLE_SHEET_ID` or fallback `GOOGLE_SHEET_NAME`).
 
 ## Requirements
 
@@ -117,6 +118,20 @@ pip install -r requirements.txt
 
 ## Run the Pipeline
 
+Set Google Sheets environment variables in `.env` (the app loads it automatically):
+
+```dotenv
+GOOGLE_SHEET_ID=
+GOOGLE_SHEET_NAME=
+GOOGLE_WORKSHEET_NAME=Sheet1
+GOOGLE_SHEETS_CREDENTIAL_PATH=google-sheets-api.json
+```
+
+Notes:
+
+- Fill at least one target: `GOOGLE_SHEET_ID` or `GOOGLE_SHEET_NAME`.
+- Share your spreadsheet with service account email from `google-sheets-api.json` as **Editor**.
+
 ```bash
 python main.py
 ```
@@ -124,6 +139,7 @@ python main.py
 Main output:
 
 - `products.csv`
+- Google Sheets worksheet (if Sheets config is valid)
 
 ## Run Unit Tests
 
