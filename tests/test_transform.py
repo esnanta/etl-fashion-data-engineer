@@ -14,10 +14,6 @@ from utils.transform import (
 
 
 class TestParseHelpers(unittest.TestCase):
-    """
-    Test helper parsers that normalize raw text fields
-    into typed values.
-    """
 
     def test_parse_price_from_usd_to_idr_valid(self):
         value = parse_price_from_usd_to_idr("$10.50")
@@ -52,10 +48,6 @@ class TestParseHelpers(unittest.TestCase):
 
 
 class TestTransformData(unittest.TestCase):
-    """
-    Test transformation flow including cleaning,
-    type casting, and invalid input handling.
-    """
 
     def test_transform_data_returns_empty_for_none_input(self):
         result = transform_data(None)
@@ -113,11 +105,12 @@ class TestTransformData(unittest.TestCase):
         self.assertEqual(row["Size"], "M")
         self.assertEqual(row["Gender"], "Men")
 
-        self.assertEqual(str(result["Price"].dtype), "int64")
+        self.assertEqual(str(result["Title"].dtype), "object")
+        self.assertEqual(str(result["Price"].dtype), "float64")
         self.assertEqual(str(result["Rating"].dtype), "float64")
         self.assertEqual(str(result["Colors"].dtype), "int64")
-        self.assertEqual(str(result["Size"].dtype), "string")
-        self.assertEqual(str(result["Gender"].dtype), "string")
+        self.assertEqual(str(result["Size"].dtype), "object")
+        self.assertEqual(str(result["Gender"].dtype), "object")
 
     def test_transform_data_returns_empty_when_required_columns_missing(self):
         raw_data = [{"Title": "Only Title"}]
