@@ -162,7 +162,7 @@ After transformation, the output is expected to satisfy:
 - No `Unknown Product` rows.
 - No null values in required columns.
 - No duplicated records.
-- `Price` in IDR (`int`).
+- `Price` in IDR (`float`).
 - `Rating` as `float`.
 - `Colors` as `int`.
 - `Size` and `Gender` as clean strings.
