@@ -36,6 +36,8 @@ This project is intentionally designed as a learning-focused ETL pipeline that d
 ## Installation
 
 ```bash
+git clone https://github.com/esnanta/etl-fashion-data-engineer.git
+cd etl-fashion-data-engineer
 python -m venv myvenv
 source myvenv/bin/activate
 pip install -r requirements.txt
