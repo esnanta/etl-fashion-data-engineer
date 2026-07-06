@@ -28,6 +28,40 @@ This project is intentionally designed as a learning-focused ETL pipeline that d
 
 ![Sample products.csv output](https://raw.githubusercontent.com/esnanta/etl-fashion-data-engineer/main/images/output_data_scraping.png)
 
+## Requirements
+
+- Python 3.10+ (Python 3.12 recommended)
+- Dependencies in `requirements.txt`
+
+## Installation
+
+```bash
+python -m venv myvenv
+source myvenv/bin/activate
+pip install -r requirements.txt
+```
+
+## Run the Pipeline
+
+Set Google Sheets environment variables in `.env` (the app loads them automatically):
+
+```dotenv
+GOOGLE_SHEET_ID=
+GOOGLE_SHEET_NAME=
+GOOGLE_WORKSHEET_NAME=Sheet1
+GOOGLE_SHEETS_CREDENTIAL_PATH=google-sheets-api.json
+```
+
+Configuration Notes:
+
+- Provide at least one of: `GOOGLE_SHEET_ID` or `GOOGLE_SHEET_NAME`.
+- Share your spreadsheet with service account email from `google-sheets-api.json` as **Editor**.
+
+```bash
+python scripts/run_pipeline.py
+```
+
+
 ## Modular Architecture
 
 This repository is built with a modular structure so each concern is isolated and easy to maintain.
@@ -103,7 +137,9 @@ etl-fashion-data-engineer/
 
 ![Sample test coverage](https://github.com/esnanta/etl-fashion-data-engineer/blob/main/images/test_coverage.png)
 
-## ETL Flow
+## ETL Flow & Data Layers
+
+This pipeline follows a multi-layered data architecture (Bronze, Silver, Gold) to ensure data quality and traceability.
 
 ```text
 ┌──────────────────┐
@@ -120,7 +156,6 @@ etl-fashion-data-engineer/
           ▼
 ┌──────────────────────────┐
 │ data/raw/{dataset}.json  │
-│      (Raw Artifact)      │
 └───────────┬──────────────┘
             │
             ▼
@@ -138,7 +173,7 @@ etl-fashion-data-engineer/
            ▼
 ┌───────────────────────────────┐
 │ data/processed/{dataset}.parquet│
-│      (Processed Artifact)     │
+│                               │
 └───────────────┬───────────────┘
                 │
       ┌─────────┴─────────┐
@@ -152,47 +187,30 @@ etl-fashion-data-engineer/
        ▼                         ▼
 ┌────────────────┐       ┌────────────────┐
 │ data/export/   │       │  Google Sheets │
-│ {dataset}.csv  │       └────────────────┘
+│ {dataset}.csv  │       │                │
+│                │       └────────────────┘
 └────────────────┘
 ```
 
-## Requirements
+### Pipeline Outputs (Data Layers)
 
-- Python 3.10+ (Python 3.12 recommended)
-- Dependencies in `requirements.txt`
+The pipeline produces three distinct types of output, each corresponding to a layer in a modern data architecture:
 
-## Installation
+1.  **Raw Data**
+    - **Path**: `data/raw/products/{YYYY}/{MM}/{DD}/`
+    - **Format**: JSON
+    - **Description**: This is the first stop for our data. The `raw` output is an unaltered, timestamped copy of the data scraped from the source website. It serves as the "single source of truth." Having this raw copy allows us to re-run the transformation logic anytime without needing to re-scrape the website, which is crucial for debugging, auditing, and reprocessing.
 
-```bash
-python -m venv myvenv
-source myvenv/bin/activate
-pip install -r requirements.txt
-```
+2.  **Processed Data**
+    - **Path**: `data/processed/products/{YYYY}/{MM}/{DD}/`
+    - **Format**: Parquet
+    - **Description**: This layer contains data that has been cleaned, validated, and transformed. We've applied business logic (like converting currency), standardized data types, and removed invalid records. The data is stored in Parquet, an efficient columnar format ideal for analytics. This is the clean, reliable dataset used for internal analytics and as a source for the final output layer.
 
-## Run the Pipeline
+3.  **Export/Sink**
+    - **Path**: `data/export/products/{YYYY}/{MM}/{DD}/` and Google Sheets
+    - **Format**: CSV and Google Sheets
+    - **Description**: This is the final, user-facing layer. The data from the Silver layer is prepared for specific end-users or systems. In this case, we create a CSV file for easy use in spreadsheets or local tools, and we upload it to Google Sheets for a cloud-based, shareable view. This layer is optimized for consumption, not for further processing.
 
-Set Google Sheets environment variables in `.env` (the app loads them automatically):
-
-```dotenv
-GOOGLE_SHEET_ID=
-GOOGLE_SHEET_NAME=
-GOOGLE_WORKSHEET_NAME=Sheet1
-GOOGLE_SHEETS_CREDENTIAL_PATH=google-sheets-api.json
-```
-
-Configuration Notes:
-
-- Provide at least one of: `GOOGLE_SHEET_ID` or `GOOGLE_SHEET_NAME`.
-- Share your spreadsheet with service account email from `google-sheets-api.json` as **Editor**.
-
-```bash
-python scripts/run_pipeline.py
-```
-
-Main output:
-
-- `products.csv`
-- Google Sheets worksheet (if Sheets config is valid)
 
 ### Running All Tests
 
