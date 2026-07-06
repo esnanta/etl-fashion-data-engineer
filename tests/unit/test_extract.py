@@ -3,7 +3,7 @@ from unittest.mock import Mock, patch
 
 from bs4 import BeautifulSoup
 
-from utils.extract import DEFAULT_BASE_URL, extract_data, fetch_page, scrape_data
+from pipeline.extract import DEFAULT_BASE_URL, extract_data, fetch_page, scrape_data
 
 
 class TestExtractData(unittest.TestCase):
@@ -62,7 +62,7 @@ class TestFetchPage(unittest.TestCase):
     and timeout failures.
     """
 
-    @patch("utils.extract.requests.get")
+    @patch("pipeline.extract.requests.get")
     def test_fetch_page_success(self, mock_get):
         response = Mock()
         response.content = b"<html>ok</html>"
@@ -75,7 +75,7 @@ class TestFetchPage(unittest.TestCase):
         mock_get.assert_called_once()
 
     @patch("builtins.print")
-    @patch("utils.extract.requests.get")
+    @patch("pipeline.extract.requests.get")
     def test_fetch_page_timeout(self, mock_get, mock_print):
         import requests
 
@@ -93,7 +93,7 @@ class TestScrapeData(unittest.TestCase):
     skipping pages that fail to fetch.
     """
 
-    @patch("utils.extract.fetch_page")
+    @patch("pipeline.extract.fetch_page")
     def test_scrape_data_collects_data_from_multiple_pages(self, mock_fetch_page):
         page_1 = b"""
         <html><body>
@@ -133,7 +133,7 @@ class TestScrapeData(unittest.TestCase):
         self.assertEqual(len(timestamps), 1)
 
     @patch("builtins.print")
-    @patch("utils.extract.fetch_page", return_value=None)
+    @patch("pipeline.extract.fetch_page", return_value=None)
     def test_scrape_data_skips_failed_page(self, mock_fetch_page, mock_print):
         rows = scrape_data(start_page=1, end_page=1)
 

@@ -2,7 +2,7 @@ import unittest
 
 import pandas as pd
 
-from utils.transform import (
+from pipeline.transform import (
     EXCHANGE_RATE_IDR,
     parse_colors,
     parse_gender,

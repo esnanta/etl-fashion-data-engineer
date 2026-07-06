@@ -1,29 +1,76 @@
-import os
 import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 import pandas as pd
 
-from utils.load import save_to_csv, save_to_google_sheets
-
+from pipeline.load import save_to_csv, save_to_google_sheets
+from pipeline.storage import (
+    create_export_artifact,
+)
 
 class TestSaveToCsv(unittest.TestCase):
-    """Test saving transformed data into CSV output."""
+    """Test it saving transformed data into CSV output."""
 
-    def test_save_to_csv_returns_false_for_none_input(self):
-        with self.assertLogs("utils.load", level="WARNING") as logs:
-            result = save_to_csv(None)
+    def test_save_to_csv_returns_none_for_none_input(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            artifact = create_export_artifact(
+                dataset="products",
+                extension=".csv",
+                data_directory=Path(tmp_dir),
+            )
 
-        self.assertFalse(result)
-        self.assertIn("No data provided to save.", logs.output[0])
+            with self.assertLogs("pipeline.load", level="WARNING") as logs:
+                result = save_to_csv(None, artifact)
 
-    def test_save_to_csv_returns_false_for_empty_rows(self):
-        with self.assertLogs("utils.load", level="WARNING") as logs:
-            result = save_to_csv([])
+            self.assertIsNone(result)
+            self.assertIn(
+                "No data provided to save.",
+                logs.output[0],
+            )
 
-        self.assertFalse(result)
-        self.assertIn("No rows to save.", logs.output[0])
+    def test_save_to_csv_returns_none_when_write_fails(self):
+        df = pd.DataFrame([{"Title": "Any"}])
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            artifact = create_export_artifact(
+                dataset="products",
+                extension=".csv",
+                data_directory=Path(tmp_dir),
+            )
+
+            with patch.object(
+                    pd.DataFrame,
+                    "to_csv",
+                    side_effect=Exception("Disk full"),
+            ):
+                with self.assertLogs("pipeline.load", level="ERROR") as logs:
+                    result = save_to_csv(df, artifact)
+
+            self.assertIsNone(result)
+            self.assertIn(
+                "Failed to save data to CSV: Disk full",
+                logs.output[0],
+            )
+
+
+    def test_save_to_csv_returns_none_for_empty_rows(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            artifact = create_export_artifact(
+                dataset="products",
+                extension=".csv",
+                data_directory=Path(tmp_dir),
+            )
+
+            with self.assertLogs("pipeline.load", level="WARNING") as logs:
+                result = save_to_csv([], artifact)
+
+            self.assertIsNone(result)
+            self.assertIn(
+                "No rows to save.",
+                logs.output[0],
+            )
 
     def test_save_to_csv_writes_file_for_list_input(self):
         rows = [
@@ -39,18 +86,31 @@ class TestSaveToCsv(unittest.TestCase):
         ]
 
         with tempfile.TemporaryDirectory() as tmp_dir:
-            output_path = os.path.join(tmp_dir, "out.csv")
+            artifact = create_export_artifact(
+                dataset="products",
+                extension=".csv",
+                data_directory=Path(tmp_dir),
+            )
 
-            with self.assertLogs("utils.load", level="INFO") as logs:
-                result = save_to_csv(rows, output_path=output_path)
+            with self.assertLogs("pipeline.load", level="INFO") as logs:
+                result = save_to_csv(rows, artifact)
 
-            self.assertTrue(result)
-            self.assertTrue(os.path.exists(output_path))
+            self.assertIsNotNone(result)
+            self.assertTrue(result.path.exists())
 
-            saved = pd.read_csv(output_path)
+            saved = pd.read_csv(result.path)
+
             self.assertEqual(len(saved), 1)
-            self.assertEqual(saved.iloc[0]["Title"], "Classic Shirt")
-            self.assertIn(f"Data saved to {output_path}", logs.output[0])
+            self.assertEqual(
+                saved.iloc[0]["Title"],
+                "Classic Shirt",
+            )
+
+            self.assertIn(
+                f"Data saved to {result.path}",
+                logs.output[0],
+            )
+
 
     def test_save_to_csv_accepts_dataframe_input(self):
         df = pd.DataFrame(
@@ -68,24 +128,33 @@ class TestSaveToCsv(unittest.TestCase):
         )
 
         with tempfile.TemporaryDirectory() as tmp_dir:
-            output_path = os.path.join(tmp_dir, "df_out.csv")
+            artifact = create_export_artifact(
+                dataset="products",
+                extension=".csv",
+                data_directory=Path(tmp_dir),
+            )
 
-            with self.assertLogs("utils.load", level="INFO") as logs:
-                result = save_to_csv(df, output_path=output_path)
+            with self.assertLogs("pipeline.load", level="INFO") as logs:
+                result = save_to_csv(
+                    df,
+                    artifact,
+                )
 
-            self.assertTrue(result)
-            self.assertTrue(os.path.exists(output_path))
-            self.assertIn(f"Data saved to {output_path}", logs.output[0])
+            self.assertIsNotNone(result)
+            self.assertTrue(result.path.exists())
 
-    def test_save_to_csv_returns_false_when_write_fails(self):
-        df = pd.DataFrame([{"Title": "Any"}])
+            saved = pd.read_csv(result.path)
 
-        with patch.object(pd.DataFrame, "to_csv", side_effect=Exception("Disk full")):
-            with self.assertLogs("utils.load", level="ERROR") as logs:
-                result = save_to_csv(df, output_path="/tmp/will-not-write.csv")
+            self.assertEqual(len(saved), 1)
+            self.assertEqual(
+                saved.iloc[0]["Title"],
+                "Hoodie",
+            )
 
-        self.assertFalse(result)
-        self.assertIn("Failed to save data to CSV: Disk full", logs.output[0])
+            self.assertIn(
+                f"Data saved to {result.path}",
+                logs.output[0],
+            )
 
 
 class TestSaveToGoogleSheets(unittest.TestCase):
@@ -94,18 +163,18 @@ class TestSaveToGoogleSheets(unittest.TestCase):
     def test_save_to_google_sheets_returns_false_if_spreadsheet_target_missing(self):
         df = pd.DataFrame([{"Title": "Classic Shirt"}])
 
-        with self.assertLogs("utils.load", level="WARNING") as logs:
+        with self.assertLogs("pipeline.load", level="WARNING") as logs:
             result = save_to_google_sheets(df, spreadsheet_id="", spreadsheet_name="")
 
         self.assertFalse(result)
         self.assertIn("Spreadsheet ID/name is missing. Skip Google Sheets save.", logs.output[0])
 
-    @patch("utils.load.gspread", create=True)
+    @patch("pipeline.load.gspread", create=True)
     def test_save_to_google_sheets_returns_false_for_missing_credentials(self, mock_gspread):
         df = pd.DataFrame([{"Title": "Classic Shirt"}])
         mock_gspread.service_account.side_effect = FileNotFoundError("not found")
 
-        with self.assertLogs("utils.load", level="ERROR") as logs:
+        with self.assertLogs("pipeline.load", level="ERROR") as logs:
             result = save_to_google_sheets(
                 df,
                 spreadsheet_id="dummy-spreadsheet-id",
@@ -115,7 +184,7 @@ class TestSaveToGoogleSheets(unittest.TestCase):
         self.assertFalse(result)
         self.assertIn("Google Sheets credential file not found", logs.output[0])
 
-    @patch("utils.load.gspread", create=True)
+    @patch("pipeline.load.gspread", create=True)
     def test_save_to_google_sheets_success(self, mock_gspread):
         df = pd.DataFrame(
             [
@@ -139,7 +208,7 @@ class TestSaveToGoogleSheets(unittest.TestCase):
         mock_client.open_by_key.return_value = mock_spreadsheet
         mock_gspread.service_account.return_value = mock_client
 
-        with self.assertLogs("utils.load", level="INFO") as logs:
+        with self.assertLogs("pipeline.load", level="INFO") as logs:
             result = save_to_google_sheets(
                 df,
                 spreadsheet_id="dummy-spreadsheet-id",
@@ -155,7 +224,7 @@ class TestSaveToGoogleSheets(unittest.TestCase):
         mock_worksheet.update.assert_called_once()
         self.assertIn("Data saved to Google Sheets", logs.output[0])
 
-    @patch("utils.load.gspread", create=True)
+    @patch("pipeline.load.gspread", create=True)
     def test_save_to_google_sheets_success_with_spreadsheet_name(self, mock_gspread):
         df = pd.DataFrame([{"Title": "Classic Shirt"}])
 
@@ -167,7 +236,7 @@ class TestSaveToGoogleSheets(unittest.TestCase):
         mock_client.open.return_value = mock_spreadsheet
         mock_gspread.service_account.return_value = mock_client
 
-        with self.assertLogs("utils.load", level="INFO") as logs:
+        with self.assertLogs("pipeline.load", level="INFO") as logs:
             result = save_to_google_sheets(
                 df,
                 spreadsheet_name="fashion-etl",
