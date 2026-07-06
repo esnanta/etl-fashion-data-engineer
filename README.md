@@ -111,6 +111,9 @@ etl-fashion-data-engineer/
   - Adds extraction `timestamp`.
   - Includes request and extraction error handling.
 
+- `pipeline/validation.py`
+  - Contains functions for data validation.
+
 - `pipeline/transform.py`
   - Data cleaning and normalization logic.
   - Parses fields (`Price`, `Rating`, `Colors`, `Size`, `Gender`).
@@ -122,9 +125,6 @@ etl-fashion-data-engineer/
   - Data loading/output logic.
   - Saves transformed data into `products.csv` and Google Sheets.
   - Includes basic save-time error handling.
-
-- `pipeline/validation.py`
-  - Contains functions for data validation.
 
 - `pipeline/storage.py`
   - Handles saving data to different formats or locations.
