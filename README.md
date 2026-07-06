@@ -65,7 +65,7 @@ etl-fashion-data-engineer/
 └── requirements.txt
 ```
 
-### Module Breakdown
+### ETL Flow
 
 - `scripts/run_pipeline.py`
   - Pipeline orchestrator.
@@ -102,23 +102,6 @@ etl-fashion-data-engineer/
   - Ensures modular components can be verified independently.
 
 ![Sample test coverage](https://github.com/esnanta/etl-fashion-data-engineer/blob/main/images/test_coverage.png)
-
-## ETL Flow
-
-1. **Extract**
-   - Fetch and parse product pages.
-   - Build raw records with columns:
-     - `Title`, `Price`, `Rating`, `Colors`, `Size`, `Gender`, `timestamp`
-
-2. **Transform**
-   - Parse and normalize all required fields.
-   - Convert `Price` from USD to IDR.
-   - Remove invalid, null, and duplicate records.
-   - Set consistent output types.
-
-3. **Load**
-   - Write clean records to `products.csv`.
-   - Upload clean records to Google Sheets using `GOOGLE_SHEET_ID` or `GOOGLE_SHEET_NAME`.
 
 ## Requirements
 
