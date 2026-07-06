@@ -38,10 +38,12 @@ etl-fashion-data-engineer/
 ├── products.csv
 ├── requirements.txt
 ├── README.md
-├── utils/
+├── pipeline/
 │   ├── extract.py
 │   ├── transform.py
-│   └── load.py
+│   ├── load.py
+│   ├── validation.py
+│   └── storage.py
 ├── tests/
 │   ├── test_extract.py
 │   ├── test_transform.py
@@ -141,18 +143,36 @@ Main output:
 - `products.csv`
 - Google Sheets worksheet (if Sheets config is valid)
 
-## Run Unit Tests
+### Running All Tests
 
-Run all tests:
+To run all tests (both unit and integration), use this command:
 
 ```bash
 pytest -v
 ```
 
-Run tests with coverage:
+### Running Unit Tests
+
+To run only the unit tests, specify the `tests/unit/` directory:
 
 ```bash
-pytest --cov=utils --cov-report=term-missing -v
+pytest tests/unit/ -v
+```
+
+### Running Integration Tests
+
+To run only the integration tests, specify the `tests/integration/` directory:
+
+```bash
+pytest tests/integration/ -v
+```
+
+### Test Coverage
+
+To run the tests and generate a coverage report, use this command:
+
+```bash
+pytest --cov=pipeline --cov-report=term-missing -v
 ```
 
 ## Expected Data Quality Output
