@@ -65,11 +65,11 @@ etl-fashion-data-engineer/
 └── requirements.txt
 ```
 
-### ETL Flow
+### Module Breakdown
 
 - `scripts/run_pipeline.py`
   - Pipeline orchestrator.
-  - Executes ETL flow: extract -> transform -> load.
+  - Executes the 5-step ETL flow: Extract -> Validate -> Transform -> Export -> Upload.
 
 - `pipeline/extract.py`
   - Web scraping logic (request + HTML parsing with BeautifulSoup).
@@ -102,6 +102,59 @@ etl-fashion-data-engineer/
   - Ensures modular components can be verified independently.
 
 ![Sample test coverage](https://github.com/esnanta/etl-fashion-data-engineer/blob/main/images/test_coverage.png)
+
+## ETL Flow
+
+```text
+┌──────────────────┐
+│ Fashion Studio │
+│    (Website)   │
+└────────┬─────────┘
+         │
+         ▼
+┌───────────────────┐
+│  pipeline.extract │
+│   (scrape_data)   │
+└─────────┬─────────┘
+          │
+          ▼
+┌──────────────────────────┐
+│ data/raw/{dataset}.json  │
+│      (Raw Artifact)      │
+└───────────┬──────────────┘
+            │
+            ▼
+┌────────────────────┐
+│ pipeline.validation│
+│(validate_raw_dataset)│
+└──────────┬─────────┘
+           │
+           ▼
+┌────────────────────┐
+│ pipeline.transform │
+│  (transform_data)  │
+└──────────┬─────────┘
+           │
+           ▼
+┌───────────────────────────────┐
+│ data/processed/{dataset}.parquet│
+│      (Processed Artifact)     │
+└───────────────┬───────────────┘
+                │
+      ┌─────────┴─────────┐
+      │                   │
+      ▼                   ▼
+┌───────────────┐   ┌─────────────────────────┐
+│ pipeline.load │   │     pipeline.load       │
+│ (save_to_csv) │   │ (save_to_google_sheets) │
+└──────┬────────┘   └────────────┬────────────┘
+       │                         │
+       ▼                         ▼
+┌────────────────┐       ┌────────────────┐
+│ data/export/   │       │  Google Sheets │
+│ {dataset}.csv  │       └────────────────┘
+└────────────────┘
+```
 
 ## Requirements
 
