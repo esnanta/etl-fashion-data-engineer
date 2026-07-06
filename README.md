@@ -89,6 +89,12 @@ etl-fashion-data-engineer/
   - Saves transformed data into `products.csv` and Google Sheets.
   - Includes basic save-time error handling.
 
+- `pipeline/validation.py`
+  - Contains functions for data validation.
+
+- `pipeline/storage.py`
+  - Handles saving data to different formats or locations.
+
 - `tests/`
   - Unit and integration tests for each ETL stage:
     - `tests/unit/`
