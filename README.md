@@ -34,56 +34,65 @@ This repository is built with a modular structure so each concern is isolated an
 
 ```text
 etl-fashion-data-engineer/
-├── main.py
-├── products.csv
-├── requirements.txt
-├── README.md
+├── data/
+├── docs/
+├── images/
+│   ├── fashion_studio.png
+│   ├── log_scrape_data.png
+│   ├── log_test_run.png
+│   ├── output_data_scraping.png
+│   ├── test_coverage.png
+│   ├── test_extract.png
+│   ├── test_load.png
+│   └── test_transform.png
 ├── pipeline/
 │   ├── extract.py
-│   ├── transform.py
 │   ├── load.py
-│   ├── validation.py
-│   └── storage.py
+│   ├── storage.py
+│   ├── transform.py
+│   └── validation.py
+├── scripts/
+│   └── run_pipeline.py
 ├── tests/
-│   ├── test_extract.py
-│   ├── test_transform.py
-│   └── test_load.py
-└── images/
-    ├── output_data_scraping.png
-    ├── test_extract.png
-    ├── test_transform.png
-    └── test_load.png
+│   ├── integration/
+│   └── unit/
+├── .env.example
+├── .gitignore
+├── google-sheets-api.json-example
+├── products.csv
+├── pytest.ini
+├── README.md
+└── requirements.txt
 ```
 
 ### Module Breakdown
 
-- `main.py`
+- `scripts/run_pipeline.py`
   - Pipeline orchestrator.
   - Executes ETL flow: extract -> transform -> load.
 
-- `utils/extract.py`
+- `pipeline/extract.py`
   - Web scraping logic (request + HTML parsing with BeautifulSoup).
   - Extracts raw fields from product cards.
   - Adds extraction `timestamp`.
   - Includes request and extraction error handling.
 
-- `utils/transform.py`
+- `pipeline/transform.py`
   - Data cleaning and normalization logic.
   - Parses fields (`Price`, `Rating`, `Colors`, `Size`, `Gender`).
   - Converts `Price` from USD to IDR.
   - Removes invalid rows (e.g., `Unknown Product`), null values, and duplicates.
   - Enforces expected output data types.
 
-- `utils/load.py`
+- `pipeline/load.py`
   - Data loading/output logic.
   - Saves transformed data into `products.csv` and Google Sheets.
   - Includes basic save-time error handling.
 
 - `tests/`
-  - Unit tests for each ETL stage:
-    - `test_extract.py`
-    - `test_transform.py`
-    - `test_load.py`
+  - Unit and integration tests for each ETL stage:
+    - `tests/unit/`
+    - `tests/integration/`
   - Ensures modular components can be verified independently.
 
 ![Sample test coverage](https://github.com/esnanta/etl-fashion-data-engineer/blob/main/images/test_coverage.png)
@@ -135,7 +144,7 @@ Configuration Notes:
 - Share your spreadsheet with service account email from `google-sheets-api.json` as **Editor**.
 
 ```bash
-python main.py
+python scripts/run_pipeline.py
 ```
 
 Main output:
