@@ -262,3 +262,4 @@ After transformation, the output is expected to satisfy:
 
 -   This is a learning project from Dicoding and is intended to demonstrate practical ETL fundamentals in Python.
 -   The case-study website and data are simulated for educational purposes.
+-   This pipeline is also prepared to be orchestrated using Apache Airflow.
