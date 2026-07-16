@@ -35,16 +35,16 @@ This project implements an ETL (Extract, Transform, Load) pipeline for fashion d
 
 4.  **Set up Airflow Home and Database:**
 
-    Navigate to the project root directory and set the `AIRFLOW_HOME` environment variable.
+    Navigate to the project root directory and set the `airflow` environment variable.
 
     ```bash
-    export AIRFLOW_HOME=$(pwd)/airflow_home
+    export airflow=$(pwd)/airflow
     ```
 
     Create the necessary directories for DAGs and plugins:
     ```bash
-    mkdir -p airflow_home/dags
-    mkdir -p airflow_home/plugins
+    mkdir -p airflow/dags
+    mkdir -p airflow/plugins
     ```
 
     Initialize the Airflow database. This command will create the SQLite database, run migrations, and generate the `airflow.cfg` file.
@@ -55,7 +55,7 @@ This project implements an ETL (Extract, Transform, Load) pipeline for fashion d
 
 5.  **Configure Airflow:**
 
-    Open `airflow_home/airflow.cfg` and disable the example DAGs for a cleaner setup:
+    Open `airflow/airflow.cfg` and disable the example DAGs for a cleaner setup:
 
     ```ini
     load_examples = False
@@ -65,7 +65,7 @@ This project implements an ETL (Extract, Transform, Load) pipeline for fashion d
 
 ```
 etl-fashion-data-engineer-airflow/
-├── airflow_home/
+├── airflow/
 │   ├── dags/
 │   ├── logs/
 │   ├── plugins/
@@ -82,7 +82,7 @@ etl-fashion-data-engineer-airflow/
 
 1.  **Start the Airflow Scheduler:**
 
-    Open a new terminal, activate the virtual environment, and set the `AIRFLOW_HOME` variable as before. Then, start the scheduler:
+    Open a new terminal, activate the virtual environment, and set the `airflow` variable as before. Then, start the scheduler:
 
     ```bash
     source activate-airflow.sh
@@ -147,8 +147,8 @@ pkill -f "airflow dag-processor"
 pkill -f "airflow triggerer"
 
 rm -rf ~/airflow
-rm -f airflow_home/airflow.db
-rm -f airflow_home/simple_auth_manager_passwords.json.generated
+rm -f airflow/airflow.db
+rm -f airflow/simple_auth_manager_passwords.json.generated
 
 source activate-airflow.sh
 airflow db migrate
