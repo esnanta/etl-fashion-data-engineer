@@ -3,6 +3,7 @@ from datetime import datetime
 from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator
 
+from airflow.dags.tasks.transform import transform_task
 from airflow.dags.tasks.validate import validate_task
 from tasks.extract import extract_task
 
@@ -26,4 +27,9 @@ with DAG(
         python_callable=validate_task,
     )
 
-    extract >> validate
+    transform = PythonOperator(
+        task_id="transform",
+        python_callable=transform_task,
+    )
+
+    extract >> validate >> transform
