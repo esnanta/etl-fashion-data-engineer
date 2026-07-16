@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from datetime import datetime
+from pathlib import Path
+
 from pipeline.storage import (
     DataLayer,
     DatasetArtifact,
@@ -8,17 +11,26 @@ from pipeline.storage import (
 from pipeline.validation import validate_raw_dataset
 
 
+DATASET_NAME = "products"
+
+
 def validate_task(
-    raw_artifact: DatasetArtifact,
-) -> DatasetArtifact:
+    artifact_path: str,
+) -> str:
     """
     Validate a Raw Dataset Artifact.
     """
-    if raw_artifact.layer is not DataLayer.RAW:
-        raise ValueError(
-            "Validate task only accepts Raw Dataset Artifact."
-        )
+    raw_artifact = DatasetArtifact(
+        dataset=DATASET_NAME,
+        layer=DataLayer.RAW,
+        created_at=datetime.now(),
+        path=Path(artifact_path),
+    )
 
-    rows = load_raw_dataset(raw_artifact)
+    rows = load_raw_dataset(
+        raw_artifact,
+    )
+
     validate_raw_dataset(rows)
-    return raw_artifact
+
+    return artifact_path

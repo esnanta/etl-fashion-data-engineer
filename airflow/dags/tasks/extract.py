@@ -4,17 +4,15 @@ from pipeline.extract import (
     DEFAULT_BASE_URL,
     scrape_data,
 )
-from pipeline.storage import (
-    DatasetArtifact,
-    save_raw_dataset,
-)
+from pipeline.storage import save_raw_dataset
+
 
 DATASET_NAME = "products"
 
 
-def extract_task() -> DatasetArtifact:
+def extract_task() -> str:
     """
-    Extract data from a website and save it
+    Extract data from website and save it
     as a Raw Dataset Artifact.
     """
     rows = scrape_data(DEFAULT_BASE_URL)
@@ -24,4 +22,4 @@ def extract_task() -> DatasetArtifact:
         dataset=DATASET_NAME,
     )
 
-    return artifact
+    return str(artifact.path)
