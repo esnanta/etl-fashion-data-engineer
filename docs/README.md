@@ -1,5 +1,5 @@
 # ETL Fashion Data Engineer with Airflow
-
+Business logic tetap berada di pipeline/ dan Airflow hanya berperan sebagai orchestrator.
 This project implements an ETL (Extract, Transform, Load) pipeline for fashion data using Apache Airflow.
 
 ## Prerequisites
@@ -152,3 +152,22 @@ rm -f airflow/simple_auth_manager_passwords.json.generated
 
 source activate-airflow.sh
 airflow db migrate
+
+
+
+
+Task:
+Task                Input                  Output
+----------------------------------------------------------------
+Extract             Website                artifact.path
+Validate            artifact.path          artifact.path
+Transform           artifact.path          artifact.path
+Export CSV          artifact.path          artifact.path
+Upload GS           artifact.path          status(bool)
+
+Task mengikuti prinsip:
+
+Airflow sebagai orchestrator.
+Thin DAG.
+Task yang granular dan atomic.
+Komunikasi antar task menggunakan artifact, bukan dataset di memori.
