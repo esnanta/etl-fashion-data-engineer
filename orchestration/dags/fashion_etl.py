@@ -7,19 +7,19 @@ from airflow.providers.standard.operators.python import (
     PythonOperator,
 )
 
-from orchestration.dags.tasks.task_export_csv import (
+from orchestration.tasks.task_export_csv import (
     export_csv_task,
 )
-from orchestration.dags.tasks.task_extract import (
+from orchestration.tasks.task_extract import (
     extract_task,
 )
-from orchestration.dags.tasks.task_transform import (
+from orchestration.tasks.task_transform import (
     transform_task,
 )
-from orchestration.dags.tasks.task_upload_google_sheets import (
+from orchestration.tasks.task_upload_google_sheets import (
     upload_google_sheets_task,
 )
-from orchestration.dags.tasks.task_validate import (
+from orchestration.tasks.task_validate import (
     validate_task,
 )
 
