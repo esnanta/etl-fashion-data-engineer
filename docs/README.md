@@ -35,10 +35,10 @@ This project implements an ETL (Extract, Transform, Load) pipeline for fashion d
 
 4.  **Set up Airflow Home and Database:**
 
-    Navigate to the project root directory and set the `airflow` environment variable.
+    Navigate to the project root directory and set the `orchestration` environment variable.
 
     ```bash
-    export airflow=$(pwd)/airflow
+    export airflow=$(pwd)/orchestration
     ```
 
     Create the necessary directories for DAGs and plugins:
