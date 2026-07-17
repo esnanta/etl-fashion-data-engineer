@@ -50,6 +50,7 @@ This project implements an ETL (Extract, Transform, Load) pipeline for fashion d
     Initialize the Airflow database. This command will create the SQLite database, run migrations, and generate the `airflow.cfg` file.
 
     ```bash
+    source activate-airflow.sh
     airflow db migrate
     ```
 
@@ -65,7 +66,7 @@ This project implements an ETL (Extract, Transform, Load) pipeline for fashion d
 
 ```
 etl-fashion-data-engineer-airflow/
-├── airflow/
+├── orchestration/
 │   ├── dags/
 │   ├── logs/
 │   ├── plugins/
