@@ -37,7 +37,7 @@ def export_csv_task(
         extension=".csv",
     )
 
-    save_to_csv(
+    csv_artifact = save_to_csv(
         product_data=dataframe,
         artifact=csv_artifact,
     )
