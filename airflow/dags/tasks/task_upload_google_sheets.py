@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import os
 from datetime import datetime
 from pathlib import Path
+
+from dotenv import load_dotenv
 
 from pipeline.load import save_to_google_sheets
 from pipeline.storage import (
@@ -9,6 +12,8 @@ from pipeline.storage import (
     DatasetArtifact,
     load_processed_dataset,
 )
+
+load_dotenv()
 
 DATASET_NAME = "products"
 
@@ -31,11 +36,25 @@ def upload_google_sheets_task(
         processed_artifact,
     )
 
-    result = save_to_google_sheets(
+    is_saved = save_to_google_sheets(
         product_data=dataframe,
+        spreadsheet_id=os.getenv(
+            "GOOGLE_SHEET_ID",
+        ),
+        spreadsheet_name=os.getenv(
+            "GOOGLE_SHEET_NAME",
+        ),
+        worksheet_name=os.getenv(
+            "GOOGLE_WORKSHEET_NAME",
+            "Sheet1",
+        ),
+        credential_path=os.getenv(
+            "GOOGLE_SHEETS_CREDENTIAL_PATH",
+            "google-sheets-api.json",
+        ),
     )
 
-    if not result:
+    if not is_saved:
         raise RuntimeError(
             "Failed to upload dataset to Google Sheets."
         )
