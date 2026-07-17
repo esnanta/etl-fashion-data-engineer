@@ -40,36 +40,35 @@ def _prepare_dataframe(product_data):
 def save_to_csv(
     product_data,
     artifact: DatasetArtifact,
-) -> DatasetArtifact | None:
+) -> DatasetArtifact:
     """
     Save transformed product data to a CSV artifact.
     """
-    try:
-        df = _prepare_dataframe(product_data)
-        if df is None:
-            return None
+    df = _prepare_dataframe(
+        product_data,
+    )
 
-        artifact.path.parent.mkdir(
-            parents=True,
-            exist_ok=True,
+    if df is None:
+        raise RuntimeError(
+            "No data provided for CSV export."
         )
 
-        df.to_csv(
-            artifact.path,
-            index=False,
-        )
+    artifact.path.parent.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
 
-        logger.info("Data saved to %s", artifact.path)
+    df.to_csv(
+        artifact.path,
+        index=False,
+    )
 
-        return artifact
+    logger.info(
+        "Data saved to %s",
+        artifact.path,
+    )
 
-    except Exception as e:
-        logger.error(
-            "Failed to save data to CSV: %s",
-            e,
-            exc_info=True,
-        )
-        return None
+    return artifact
 
 
 def save_to_google_sheets(
