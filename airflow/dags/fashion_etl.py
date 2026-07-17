@@ -1,11 +1,27 @@
 from __future__ import annotations
-from datetime import datetime
-from airflow import DAG
-from airflow.providers.standard.operators.python import PythonOperator
 
-from airflow.dags.tasks.transform import transform_task
-from airflow.dags.tasks.validate import validate_task
-from tasks.extract import extract_task
+from datetime import datetime
+
+from airflow import DAG
+from airflow.providers.standard.operators.python import (
+    PythonOperator,
+)
+
+from airflow.dags.tasks.task_export_csv import (
+    export_csv_task,
+)
+from airflow.dags.tasks.task_extract import (
+    extract_task,
+)
+from airflow.dags.tasks.task_transform import (
+    transform_task,
+)
+from airflow.dags.tasks.task_upload_google_sheets import (
+    upload_google_sheets_task,
+)
+from airflow.dags.tasks.task_validate import (
+    validate_task,
+)
 
 
 with DAG(
@@ -17,19 +33,43 @@ with DAG(
     tags={"fashion", "etl", "learning"},
 ) as dag:
 
-    extract = PythonOperator(
+    extract_task_instance = PythonOperator(
         task_id="extract",
         python_callable=extract_task,
     )
 
-    validate = PythonOperator(
+    validate_task_instance = PythonOperator(
         task_id="validate",
         python_callable=validate_task,
     )
 
-    transform = PythonOperator(
+    transform_task_instance = PythonOperator(
         task_id="transform",
         python_callable=transform_task,
     )
 
-    extract >> validate >> transform
+    export_csv_task_instance = PythonOperator(
+        task_id="export_csv",
+        python_callable=export_csv_task,
+    )
+
+    upload_google_sheets_task_instance = PythonOperator(
+        task_id="upload_google_sheets",
+        python_callable=upload_google_sheets_task,
+    )
+
+    (
+        extract_task_instance
+        >> validate_task_instance
+        >> transform_task_instance
+    )
+
+    (
+        transform_task_instance
+        >> export_csv_task_instance
+    )
+
+    (
+        transform_task_instance
+        >> upload_google_sheets_task_instance
+    )
