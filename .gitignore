@@ -11,3 +11,4 @@ __pycache__/
 # Coverage reports
 .coverage
 /google-sheets-api.json
+/orchestration/logs/
