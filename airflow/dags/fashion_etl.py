@@ -41,21 +41,33 @@ with DAG(
     validate_task_instance = PythonOperator(
         task_id="validate",
         python_callable=validate_task,
+        op_args=[
+            extract_task_instance.output,
+        ],
     )
 
     transform_task_instance = PythonOperator(
         task_id="transform",
         python_callable=transform_task,
+        op_args=[
+            validate_task_instance.output,
+        ],
     )
 
     export_csv_task_instance = PythonOperator(
         task_id="export_csv",
         python_callable=export_csv_task,
+        op_args=[
+            transform_task_instance.output,
+        ],
     )
 
     upload_google_sheets_task_instance = PythonOperator(
         task_id="upload_google_sheets",
         python_callable=upload_google_sheets_task,
+        op_args=[
+            transform_task_instance.output,
+        ],
     )
 
     (
