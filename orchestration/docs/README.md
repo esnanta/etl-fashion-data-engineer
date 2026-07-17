@@ -55,7 +55,7 @@ This project implements an ETL (Extract, Transform, Load) pipeline for fashion d
 
 5.  **Configure Airflow:**
 
-    Open `airflow/airflow.cfg` and disable the example DAGs for a cleaner setup:
+    Open `orchestration/airflow.cfg` and disable the example DAGs for a cleaner setup:
 
     ```ini
     load_examples = False

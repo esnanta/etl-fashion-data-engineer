@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# source activate-airflow.sh
+# source activate-dags.sh
 
 source myvenv/bin/activate
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
