@@ -99,18 +99,43 @@ airflow-project/
 
 ---
 
-### 🪵 6. Logging Best Practices
+### 🪵 6. Logging Best Practices: Keep it Simple and Separate
 
-Adhere to the principles of **KISS (Keep It Simple, Stupid)** and the **"Thin Orchestrator"** model by separating logging responsibilities.
+The goal of logging in your business logic is to provide clarity on what your code is doing, not to replicate Airflow's complex orchestration logs. The best approach is to keep your logging **simple, independent, and easy to debug**.
 
-**a. Task Logger**
-- **Responsibility:** Logs the lifecycle of an Airflow task (e.g., `start`, `finish`, `return_value`, key parameters).
-- **Scope:** It should have no knowledge of the underlying business logic. Its only job is to report the state of the task itself.
+**a. Keep Business Logic Logs Separate from Airflow**
 
-**b. Pipeline Logger**
-- **Responsibility:** Logs the details of the core business logic (e.g., data scraping, validation steps, transformation results, API interactions).
-- **Scope:** It should be completely decoupled from Airflow. It has no awareness that its code is being executed within a DAG.
+-   **Airflow's Job:** Airflow is excellent at logging the *orchestration* layer: when a task starts, stops, fails, or retries. Let Airflow handle this.
+-   **Your Job:** Your business logic (e.g., a data transformation script) should only log what's relevant to its own execution: how many records were processed, what decisions were made, or what specific error occurred. Your script should have **no awareness** it's being run by Airflow. This clean separation is the key to simplicity and maintainability.
 
-**c. DAGs as Thin Orchestrators**
-- **Responsibility:** The DAG's role is purely to orchestrate. It defines the workflow and dependencies.
-- **Scope:** Keep DAGs lean. They should trigger the work, not perform it. The heavy lifting and its detailed logging belong in the business logic layer, which is called by the DAG.
+**b. Make Your Logs More Useful with Minimal Effort**
+
+These practices are not about adding complexity. They are simple techniques to make your independent logs far more powerful for debugging.
+
+-   **Use Structured Logging (e.g., JSON):**
+    -   **Why:** It makes your logs instantly searchable and filterable in modern logging tools (Splunk, Datadog, etc.). This is much simpler than trying to parse plain text.
+    -   **How:** Instead of `logging.info("Processing done")`, log a simple dictionary: `logging.info({"message": "Processing done", "records_processed": 100})`. The code change is tiny, but the benefit for debugging is huge.
+
+-   **Add a Correlation ID for Easy Debugging:**
+    -   **Why:** When an error happens in your business logic, you need to find the exact Airflow task that ran it. A correlation ID makes this trivial.
+    -   **How:** Simply pass Airflow's `run_id` from the task context into your script. Including this ID in your logs creates a simple, powerful link between two separate systems without mixing their concerns.
+
+    ```python
+    # In your DAG: Pass the context
+    def my_python_callable(**context):
+        # This is the only "link" you need.
+        correlation_id = context["run_id"]
+        # Pass it to your independent script.
+        my_business_logic(correlation_id=correlation_id)
+
+    # In your business logic script (completely separate from Airflow):
+    def my_business_logic(correlation_id):
+        # Use the standard Python logger.
+        import logging
+        logging.info({
+            "message": "Something happened in the business logic",
+            "correlation_id": correlation_id # Now you can trace it back!
+        })
+    ```
+
+This approach ensures your business logic remains clean and testable on its own, while still giving you the end-to-end traceability needed in a production environment.
