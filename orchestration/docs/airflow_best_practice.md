@@ -96,3 +96,21 @@ airflow-project/
 - **Keep the `dags/` folder clean:** It should only contain Python files that define DAGs. The Airflow scheduler scans this folder frequently, so any heavy or non-DAG code here will slow it down.
 - **Use `include/` for assets:** Store static files like SQL queries or helper scripts here. Your DAG tasks will read or execute these files.
 - **Treat DAGs as "Thin Orchestrators":** Your DAG files should act like configuration. Their job is to define the workflow, set dependencies, and delegate the actual work to operators. The heavy lifting should be done by external systems, which can be triggered by operators like `DockerOperator`, `KubernetesPodOperator`, or `SparkSubmitOperator`.
+
+---
+
+### 🪵 6. Logging Best Practices
+
+Adhere to the principles of **KISS (Keep It Simple, Stupid)** and the **"Thin Orchestrator"** model by separating logging responsibilities.
+
+**a. Task Logger**
+- **Responsibility:** Logs the lifecycle of an Airflow task (e.g., `start`, `finish`, `return_value`, key parameters).
+- **Scope:** It should have no knowledge of the underlying business logic. Its only job is to report the state of the task itself.
+
+**b. Pipeline Logger**
+- **Responsibility:** Logs the details of the core business logic (e.g., data scraping, validation steps, transformation results, API interactions).
+- **Scope:** It should be completely decoupled from Airflow. It has no awareness that its code is being executed within a DAG.
+
+**c. DAGs as Thin Orchestrators**
+- **Responsibility:** The DAG's role is purely to orchestrate. It defines the workflow and dependencies.
+- **Scope:** Keep DAGs lean. They should trigger the work, not perform it. The heavy lifting and its detailed logging belong in the business logic layer, which is called by the DAG.
