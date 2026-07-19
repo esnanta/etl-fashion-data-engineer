@@ -12,3 +12,7 @@ __pycache__/
 .coverage
 /google-sheets-api.json
 /orchestration/logs/
+/orchestration/airflow.db
+/orchestration/airflow.db-wal
+/orchestration/airflow.db-shm
+/orchestration/simple_auth_manager_passwords.json.generated
