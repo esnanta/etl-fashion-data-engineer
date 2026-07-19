@@ -28,6 +28,18 @@ This project is intentionally designed as a learning-focused ETL pipeline that d
 
 ![Sample products.csv output](https://raw.githubusercontent.com/esnanta/etl-fashion-data-engineer/main/images/output_data_scraping.png)
 
+
+## Data Orchestration with Apache Airflow
+
+This project is also equipped with a data orchestration module using Apache Airflow, located in the `/orchestration` directory. This allows the ETL pipeline to be scheduled, monitored, and managed in a production-like environment.
+
+The core principle is that Airflow acts as an orchestrator, not an execution engine. The business logic for the ETL process remains in the `pipeline/` modules. Airflow's role is to trigger these tasks in the correct order and manage their dependencies.
+
+For detailed instructions on how to set up and run the pipeline with Airflow, please refer to the `orchestration/README.md` file.
+
+![Sample Airflow DAG runs](https://github.com/esnanta/etl-fashion-data-engineer/blob/main/images/airflow_dag_runs.png?raw=true)
+
+
 ## Requirements
 
 -   Python 3.10+ (Python 3.12 recommended)
@@ -139,14 +151,6 @@ etl-fashion-data-engineer/
     -   Ensures modular components can be verified independently.
 
 ![Sample test coverage](https://github.com/esnanta/etl-fashion-data-engineer/blob/main/images/test_coverage.png)
-
-## Data Orchestration with Apache Airflow
-
-This project is also equipped with a data orchestration module using Apache Airflow, located in the `/orchestration` directory. This allows the ETL pipeline to be scheduled, monitored, and managed in a production-like environment.
-
-The core principle is that Airflow acts as an orchestrator, not an execution engine. The business logic for the ETL process remains in the `pipeline/` modules. Airflow's role is to trigger these tasks in the correct order and manage their dependencies.
-
-For detailed instructions on how to set up and run the pipeline with Airflow, please refer to the `orchestration/README.md` file.
 
 ## ETL Flow & Data Layers
 
