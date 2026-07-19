@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import os
 from datetime import datetime
 from pathlib import Path
@@ -20,11 +21,20 @@ DATASET_NAME = "products"
 
 def upload_google_sheets_task(
     artifact_path: str,
+    run_id: str,
 ) -> bool:
     """
     Upload a Processed Dataset Artifact
     into Google Sheets.
     """
+    logging.info(
+        {
+            "message": "Starting Google Sheets upload.",
+            "correlation_id": run_id,
+            "input_artifact_path": artifact_path,
+        }
+    )
+
     processed_artifact = DatasetArtifact(
         dataset=DATASET_NAME,
         layer=DataLayer.PROCESSED,
@@ -34,6 +44,12 @@ def upload_google_sheets_task(
 
     dataframe = load_processed_dataset(
         processed_artifact,
+    )
+    logging.info(
+        {
+            "message": f"Loaded dataframe with {len(dataframe)} rows.",
+            "correlation_id": run_id,
+        }
     )
 
     is_saved = save_to_google_sheets(
@@ -55,8 +71,21 @@ def upload_google_sheets_task(
     )
 
     if not is_saved:
+        logging.error(
+            {
+                "message": "Failed to upload dataset to Google Sheets.",
+                "correlation_id": run_id,
+            }
+        )
         raise RuntimeError(
             "Failed to upload dataset to Google Sheets."
         )
+
+    logging.info(
+        {
+            "message": "Successfully uploaded dataset to Google Sheets.",
+            "correlation_id": run_id,
+        }
+    )
 
     return True

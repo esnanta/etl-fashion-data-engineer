@@ -45,6 +45,7 @@ with DAG(
         op_args=[
             extract_task_instance.output,
         ],
+        op_kwargs={"run_id": "{{ run_id }}"},
     )
 
     transform_task_instance = PythonOperator(
@@ -53,6 +54,7 @@ with DAG(
         op_args=[
             validate_task_instance.output,
         ],
+        op_kwargs={"run_id": "{{ run_id }}"},
     )
 
     export_csv_task_instance = PythonOperator(
@@ -61,6 +63,7 @@ with DAG(
         op_args=[
             transform_task_instance.output,
         ],
+        op_kwargs={"run_id": "{{ run_id }}"},
     )
 
     upload_google_sheets_task_instance = PythonOperator(
@@ -69,6 +72,7 @@ with DAG(
         op_args=[
             transform_task_instance.output,
         ],
+        op_kwargs={"run_id": "{{ run_id }}"},
     )
 
     (
