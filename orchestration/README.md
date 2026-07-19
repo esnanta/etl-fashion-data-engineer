@@ -46,11 +46,22 @@ This project uses Apache Airflow to orchestrate the ETL (Extract, Transform, Loa
 
 ## Running the Orchestration
 
-To run the data orchestration, you need to start the Airflow scheduler, webserver, and DAG processor.
+For local development, the easiest way to run Airflow is using the `standalone` command, which bundles all necessary services into a single process.
+
+```bash
+source activate-airflow.sh
+airflow standalone
+```
+
+You can now access the Airflow UI at `http://localhost:8080`. To stop all services, press `Ctrl+C` in the terminal.
+
+### Alternative: Running Services Individually
+
+If you need more granular control, you can start the services in separate terminals.
 
 1.  **Start the Airflow Services:**
 
-    Open three separate terminals. In each, activate the environment using the script and then start the corresponding service:
+    Open three separate terminals. In each, activate the environment and start the corresponding service:
 
     *   **Terminal 1: Scheduler**
         ```bash
@@ -138,8 +149,13 @@ The ETL process is broken down into a series of tasks orchestrated by Airflow.
 
 ## Cleanup
 
-To stop all Airflow processes and reset the database:
+To stop all Airflow processes:
 
+```bash
+pkill -f "airflow"
+```
+
+Reset the database:
 ```bash
 pkill -f "airflow"
 rm -f orchestration/airflow.db
