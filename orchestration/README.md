@@ -140,6 +140,5 @@ To stop all Airflow processes and reset the environment:
 
 ```bash
 pkill -f "airflow"
-rm -rf ~/airflow
 rm -f airflow/airflow.db
 ```
