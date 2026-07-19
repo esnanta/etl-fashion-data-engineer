@@ -28,7 +28,7 @@ with DAG(
     dag_id="fashion_etl",
     description="Fashion ETL Pipeline",
     start_date=datetime(2026, 1, 1),
-    schedule=None,
+    schedule="@hourly",
     catchup=False,
     tags={"fashion", "etl", "learning"},
 ) as dag:
@@ -36,6 +36,7 @@ with DAG(
     extract_task_instance = PythonOperator(
         task_id="extract",
         python_callable=extract_task,
+        op_kwargs={"run_id": "{{ run_id }}"},
     )
 
     validate_task_instance = PythonOperator(
