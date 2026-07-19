@@ -1,6 +1,6 @@
-# ETL Fashion Data Engineer with Airflow
-Business logic tetap berada di pipeline/ dan Airflow hanya berperan sebagai orchestrator.
-This project implements an ETL (Extract, Transform, Load) pipeline for fashion data using Apache Airflow.
+# Data Orchestration with Apache Airflow
+
+This project uses Apache Airflow to orchestrate the ETL (Extract, Transform, Load) pipeline for fashion data. The business logic resides within the `pipeline/` directory, and Airflow acts as the orchestrator.
 
 ## Prerequisites
 
@@ -16,15 +16,7 @@ This project implements an ETL (Extract, Transform, Load) pipeline for fashion d
     source myvenv/bin/activate
     ```
 
-2.  **Ensure `pip` is up-to-date:**
-
-    ```bash
-    python -m pip install --upgrade pip setuptools wheel
-    ```
-
-3.  **Install Apache Airflow:**
-
-    Define the desired Airflow and Python versions.
+2.  **Install Apache Airflow:**
 
     ```bash
     AIRFLOW_VERSION=3.2.2
@@ -33,85 +25,69 @@ This project implements an ETL (Extract, Transform, Load) pipeline for fashion d
     pip install "apache-airflow==${AIRFLOW_VERSION}" --constraint "${CONSTRAINT_URL}"
     ```
 
-4.  **Set up Airflow Home and Database:**
+3.  **Initialize Airflow:**
 
-    Navigate to the project root directory and set the `orchestration` environment variable.
-
-    ```bash
-    export airflow=$(pwd)/orchestration
-    ```
-
-    Create the necessary directories for DAGs and plugins:
-    ```bash
-    mkdir -p airflow/dags
-    mkdir -p airflow/plugins
-    ```
-
-    Initialize the Airflow database. This command will create the SQLite database, run migrations, and generate the `airflow.cfg` file.
+    Set the `AIRFLOW_HOME` environment variable to the `orchestration` directory and initialize the database.
 
     ```bash
-    source activate-airflow.sh
+    export AIRFLOW_HOME=$(pwd)/orchestration
     airflow db migrate
     ```
 
-5.  **Configure Airflow:**
+4.  **Configure Airflow:**
 
-    Open `orchestration/airflow.cfg` and disable the example DAGs for a cleaner setup:
+    In `orchestration/airflow.cfg`, it's recommended to disable the example DAGs:
 
     ```ini
     load_examples = False
     ```
 
-## Directory Structure
+## Running the Orchestration
+
+To run the data orchestration, you need to start the Airflow scheduler, webserver, and DAG processor.
+
+1.  **Start the Airflow Services:**
+
+    Open three separate terminals and run the following commands in each:
+
+    *   **Terminal 1: Scheduler**
+        ```bash
+        export AIRFLOW_HOME=$(pwd)/orchestration
+        airflow scheduler
+        ```
+
+    *   **Terminal 2: Webserver**
+        ```bash
+        export AIRFLOW_HOME=$(pwd)/orchestration
+        airflow webserver
+        ```
+
+    *   **Terminal 3: DAG Processor**
+        ```bash
+        export AIRFLOW_HOME=$(pwd)/orchestration
+        airflow dag-processor
+        ```
+
+2.  **Access the Airflow UI:**
+
+    You can now access the Airflow UI at `http://localhost:8080`.
+
+## Project Structure
 
 ```
-etl-fashion-data-engineer-airflow/
+etl-fashion-data-engineer/
 ├── orchestration/
 │   ├── dags/
 │   ├── logs/
-│   ├── plugins/
+│   ├── tasks/
 │   ├── airflow.cfg
 │   └── airflow.db
-│
-├── myvenv/
-├── requirements.txt
-├── README.md
-└── .gitignore
+└── ...
 ```
 
-## Running Airflow
+## Task Flow
 
-1.  **Start the Airflow Scheduler:**
-
-    Open a new terminal, activate the virtual environment, and set the `airflow` variable as before. Then, start the scheduler:
-
-    ```bash
-    source activate-airflow.sh
-    airflow scheduler
-    ```
-
-2.  **Start the Airflow Webserver:**
-
-    In another terminal, repeat the environment setup and start the webserver:
-
-    ```bash
-    source activate-airflow.sh
-    airflow api-server
-    ```
-
-
-3.  **Start the Airflow Dag Processor:**
-
-    In another terminal, repeat the environment setup and start the webserver:
-
-    ```bash
-    source activate-airflow.sh
-    airflow dag-processor
-    ```
-
-You can now access the Airflow UI at `http://localhost:8080`.
-
-
+The ETL process is broken down into a series of tasks orchestrated by Airflow.
 
                      fashion_etl.py
                             │
@@ -141,34 +117,29 @@ You can now access the Airflow UI at `http://localhost:8080`.
             ▼               ▼               ▼
       scrape_data()   validate()    transform()
 
+### Task Principles
 
-pkill -f "airflow api-server"
-pkill -f "airflow scheduler"
-pkill -f "airflow dag-processor"
-pkill -f "airflow triggerer"
+-   **Airflow as Orchestrator:** Airflow is only responsible for triggering and monitoring tasks.
+-   **Thin DAGs:** The DAG definitions are lightweight and focus on task dependencies.
+-   **Granular and Atomic Tasks:** Each task has a single, well-defined responsibility.
+-   **Artifact-based Communication:** Tasks communicate through artifacts (files), not in-memory data.
 
+### Task Breakdown
+
+| Task         | Input         | Output        |
+|--------------|---------------|---------------|
+| Extract      | Website       | artifact.path |
+| Validate     | artifact.path | artifact.path |
+| Transform    | artifact.path | artifact.path |
+| Export CSV   | artifact.path | artifact.path |
+| Upload to GS | artifact.path | status (bool) |
+
+## Cleanup
+
+To stop all Airflow processes and reset the environment:
+
+```bash
+pkill -f "airflow"
 rm -rf ~/airflow
 rm -f airflow/airflow.db
-rm -f airflow/simple_auth_manager_passwords.json.generated
-
-source activate-airflow.sh
-airflow db migrate
-
-
-
-
-Task:
-Task                Input                  Output
-----------------------------------------------------------------
-Extract             Website                artifact.path
-Validate            artifact.path          artifact.path
-Transform           artifact.path          artifact.path
-Export CSV          artifact.path          artifact.path
-Upload GS           artifact.path          status(bool)
-
-Task mengikuti prinsip:
-
-Airflow sebagai orchestrator.
-Thin DAG.
-Task yang granular dan atomic.
-Komunikasi antar task menggunakan artifact, bukan dataset di memori.
+```
