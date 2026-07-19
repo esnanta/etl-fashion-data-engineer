@@ -139,3 +139,7 @@ These practices are not about adding complexity. They are simple techniques to m
     ```
 
 This approach ensures your business logic remains clean and testable on its own, while still giving you the end-to-end traceability needed in a production environment.
+XCom is for metadata communication, Artifact is for data persistence.
+XCom hanya bertugas mengkomunikasikan metadata yang diperlukan antar-task (misalnya DatasetArtifact atau ExportArtifact yang berukuran kecil).
+Dataset yang sesungguhnya tetap disimpan sebagai artifact pada storage layer dan tidak dipindahkan melalui XCom.
+Airflow tetap menjadi thin orchestrator yang hanya mengetahui alur eksekusi, metadata, dan status task, sedangkan seluruh business logic dan data processing tetap berada pada layer pipeline.
