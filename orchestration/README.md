@@ -2,6 +2,8 @@
 
 This project uses Apache Airflow to orchestrate the ETL (Extract, Transform, Load) pipeline for fashion data. The business logic resides within the `pipeline/` directory, and Airflow acts as the orchestrator.
 
+**Note:** All commands should be run from the root of the project directory.
+
 ## Prerequisites
 
 - Python 3.12
@@ -27,10 +29,10 @@ This project uses Apache Airflow to orchestrate the ETL (Extract, Transform, Loa
 
 3.  **Initialize Airflow:**
 
-    Set the `AIRFLOW_HOME` environment variable to the `orchestration` directory and initialize the database.
+    Run the activation script to set up the environment variables, then initialize the database.
 
     ```bash
-    export AIRFLOW_HOME=$(pwd)/orchestration
+    source activate-airflow.sh
     airflow db migrate
     ```
 
@@ -48,23 +50,23 @@ To run the data orchestration, you need to start the Airflow scheduler, webserve
 
 1.  **Start the Airflow Services:**
 
-    Open three separate terminals and run the following commands in each:
+    Open three separate terminals. In each, activate the environment using the script and then start the corresponding service:
 
     *   **Terminal 1: Scheduler**
         ```bash
-        export AIRFLOW_HOME=$(pwd)/orchestration
+        source activate-airflow.sh
         airflow scheduler
         ```
 
     *   **Terminal 2: Webserver**
         ```bash
-        export AIRFLOW_HOME=$(pwd)/orchestration
+        source activate-airflow.sh
         airflow webserver
         ```
 
     *   **Terminal 3: DAG Processor**
         ```bash
-        export AIRFLOW_HOME=$(pwd)/orchestration
+        source activate-airflow.sh
         airflow dag-processor
         ```
 
@@ -136,9 +138,9 @@ The ETL process is broken down into a series of tasks orchestrated by Airflow.
 
 ## Cleanup
 
-To stop all Airflow processes and reset the environment:
+To stop all Airflow processes and reset the database:
 
 ```bash
 pkill -f "airflow"
-rm -f airflow/airflow.db
+rm -f orchestration/airflow.db
 ```
